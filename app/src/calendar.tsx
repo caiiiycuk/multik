@@ -1,8 +1,8 @@
 
-import TuiCalendar from '@toast-ui/calendar';
-import '@toast-ui/calendar/dist/toastui-calendar.min.css';
+import TuiCalendar from "@toast-ui/calendar";
+import "@toast-ui/calendar/dist/toastui-calendar.min.css";
 
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from "preact/hooks";
 
 export function Calendar(props: {
     class?: string,
@@ -38,7 +38,7 @@ export function Calendar(props: {
                 time: (e) => {
                     return <div>{e.calendarId}</div>;
                 },
-            }
+            },
         });
         setInstance(instance);
 
@@ -79,7 +79,7 @@ export function Calendar(props: {
             } catch (e) {
                 // ignore
             }
-        }
+        };
     }, [root, root.current]);
 
     return <div ref={root} class={props.class}></div>;
