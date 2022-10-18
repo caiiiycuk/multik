@@ -1,13 +1,16 @@
 
 import TuiCalendar from "@toast-ui/calendar";
 import "@toast-ui/calendar/dist/toastui-calendar.min.css";
+import { RefObject } from "preact";
 
 import { useEffect, useRef, useState } from "preact/hooks";
+import { AppProps } from "./props";
 
-export function Calendar(props: {
+export function Calendar(props: AppProps & {
     class?: string,
 }) {
-    const [instance, setInstance] = useState<TuiCalendar | null>(null);
+    const { config } = props;
+    const [calendarRef] = useState<RefObject<TuiCalendar>>({ current: null });
     const root = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -16,13 +19,7 @@ export function Calendar(props: {
         }
 
         const instance = new TuiCalendar(root.current, {
-            calendars: [{
-                id: "van-var",
-                name: "Van-Var",
-            }, {
-                id: "pasemblos",
-                name: "Pasemblos",
-            }],
+            calendars: config.games as any,
             defaultView: "week",
             week: {
                 startDayOfWeek: new Date().getDay(),
@@ -33,45 +30,15 @@ export function Calendar(props: {
             usageStatistics: false,
             useFormPopup: false,
             useDetailPopup: false,
-            isReadOnly: true,
+            isReadOnly: false,
             template: {
                 time: (e) => {
                     return <div>{e.calendarId}</div>;
                 },
             },
         });
-        setInstance(instance);
 
-        instance.createEvents([
-            {
-                id: "1",
-                calendarId: "van-var",
-                backgroundColor: "#FF0000",
-                start: Date.now() + 1 * 60 * 60 * 1000,
-                end: Date.now() + 2 * 60 * 60 * 1000,
-            },
-            {
-                id: "2",
-                calendarId: "van-var",
-                backgroundColor: "#FF00FF",
-                start: Date.now() + 1 * 60 * 60 * 1000,
-                end: Date.now() + 2 * 60 * 60 * 1000,
-            },
-            {
-                id: "3",
-                calendarId: "van-var",
-                backgroundColor: "#FF00FF",
-                start: Date.now() + 1 * 60 * 60 * 1000,
-                end: Date.now() + 2 * 60 * 60 * 1000,
-            },
-            {
-                id: "4",
-                calendarId: "van-var",
-                backgroundColor: "#FF00FF",
-                start: Date.now() + 1 * 60 * 60 * 1000,
-                end: Date.now() + 2 * 60 * 60 * 1000,
-            },
-        ]);
+        calendarRef.current = instance;
 
         return () => {
             try {
@@ -80,7 +47,27 @@ export function Calendar(props: {
                 // ignore
             }
         };
-    }, [root, root.current]);
+    }, [root]);
+
+    useEffect(() => {
+        const calendar = calendarRef.current;
+        if (calendar === null) {
+            return;
+        }
+
+        calendar.on("selectDateTime", (ev) => {
+            props.createEvent({
+                start: ev.start,
+                end: ev.end,
+                calendar,
+            });
+        });
+        calendar.on("clickEvent", (ev) => {
+            props.selectEvent({
+                event: ev.event,
+            });
+        });
+    }, [calendarRef.current, props.createEvent, props.selectEvent]);
 
     return <div ref={root} class={props.class}></div>;
 }
