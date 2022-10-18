@@ -4,6 +4,7 @@ import "@toast-ui/calendar/dist/toastui-calendar.min.css";
 import { RefObject } from "preact";
 
 import { useEffect, useRef, useState } from "preact/hooks";
+import { lang } from "./i18n";
 import { AppProps } from "./props";
 
 export function Calendar(props: AppProps & {
@@ -12,6 +13,9 @@ export function Calendar(props: AppProps & {
     const { config } = props;
     const [calendarRef] = useState<RefObject<TuiCalendar>>({ current: null });
     const root = useRef<HTMLDivElement>(null);
+    const names = Object.fromEntries(config.games.map((v) => {
+        return [v.id, v.name[lang] ?? v.name["en"]];
+    }));
 
     useEffect(() => {
         if (root === null || root.current === null) {
@@ -37,7 +41,7 @@ export function Calendar(props: AppProps & {
             },
             template: {
                 time: (e) => {
-                    return <div>{e.calendarId}</div>;
+                    return <div>{names[e.calendarId]}</div>;
                 },
             },
         });
@@ -68,15 +72,17 @@ export function Calendar(props: AppProps & {
         });
 
         const pointerUp = (ev: PointerEvent) => {
-            const target = ev.target as HTMLElement | null;
-            if (target === null) {
-                return;
+            let target = ev.target as HTMLElement | null;
+            let id = null;
+            while (target !== null) {
+                id = target.getAttribute("data-event-id");
+                if (id !== null) {
+                    break;
+                }
+                target = target.parentElement;
             }
-            if (target.parentElement === null || target.parentElement.parentElement === null) {
-                return;
-            }
-            const id = target.parentElement.parentElement.getAttribute("data-event-id");
-            if (id) {
+
+            if (id !== null) {
                 const event = calendar.getEvent(id, id.split("@")[0]);
                 props.selectEvent({
                     event,
