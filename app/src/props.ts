@@ -25,9 +25,11 @@ export interface CreateEventRequest {
 
 export interface SelectEventRequest {
     event: EventObject,
+    calendar: Calendar,
 }
 
 export interface AppProps {
+    login: string | null,
     config: Config,
     createEvent: (request: CreateEventRequest) => void,
     selectEvent: (request: SelectEventRequest) => void,

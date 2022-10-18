@@ -2,6 +2,7 @@ import { useState } from "preact/hooks";
 import { lang, t } from "./i18n";
 import { AppProps, CreateEventRequest, MultiplayerGame } from "./props";
 import { nanoid } from "nanoid";
+import { humanizeTime, newDate } from "./time";
 
 const minDuration = 30 * 60 * 1000;
 const durationStep = minDuration;
@@ -90,8 +91,8 @@ export function CreateEvent(props: AppProps & {
 
             <div class="flex flex-row my-4">
                 <div class="flex-grow" />
-                <div class="bg-gray-400 px-4 py-2 mr-8 rounded" onClick={onCancle}>{t("cancle")}</div>
-                <div class="bg-green-400 px-16 py-2 rounded" onClick={onCreate}>{t("create")}</div>
+                <div class="bg-gray-400 px-4 py-2 mr-8 rounded cursor-pointer" onClick={onCancle}>{t("cancle")}</div>
+                <div class="bg-green-400 px-16 py-2 rounded cursor-pointer" onClick={onCreate}>{t("create")}</div>
             </div>
         </div>
     </div>;
@@ -107,28 +108,12 @@ function TextInput(props: {
     </div>;
 }
 
-function humanizeTime(ms: number) {
-    const timeSec = Math.round(ms / 1000);
-    if (timeSec > 24 * 60 * 60) {
-        const days = Math.round(timeSec / 24 / 60 / 60 * 10) / 10;
-        return days + (days === 1 ? " Day" : " Days");
-    }
-
-    if (timeSec > 60 * 60) {
-        const hours = Math.round(timeSec / 60 / 60 * 10) / 10;
-        return hours + (hours === 1 ? " Hour" : " Hrs");
-    }
-
-    const minutes = Math.round(timeSec / 60 * 10) / 10;
-    return minutes + " Min";
-}
-
 function IncDec(props: {
     onInc: () => void,
     onDec: () => void,
 }) {
     return <>
-        <div class="ml-2" onClick={props.onInc}>
+        <div class="ml-2 cursor-pointer" onClick={props.onInc}>
             <svg xmlns="http://www.w3.org/2000/svg"
                 fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -136,7 +121,7 @@ function IncDec(props: {
             </svg>
 
         </div>
-        <div class="ml-2" onClick={props.onDec}>
+        <div class="ml-2 cursor-pointer" onClick={props.onDec}>
             <svg xmlns="http://www.w3.org/2000/svg"
                 fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -145,8 +130,4 @@ function IncDec(props: {
 
         </div>
     </>;
-}
-
-function newDate(ms: number) {
-    return new Date(ms);
 }

@@ -31,6 +31,10 @@ export function Calendar(props: AppProps & {
             useFormPopup: false,
             useDetailPopup: false,
             isReadOnly: false,
+            gridSelection: {
+                enableClick: true,
+                enableDblClick: true,
+            },
             template: {
                 time: (e) => {
                     return <div>{e.calendarId}</div>;
@@ -51,7 +55,7 @@ export function Calendar(props: AppProps & {
 
     useEffect(() => {
         const calendar = calendarRef.current;
-        if (calendar === null) {
+        if (calendar === null || root === null || root.current === null) {
             return;
         }
 
@@ -62,12 +66,33 @@ export function Calendar(props: AppProps & {
                 calendar,
             });
         });
-        calendar.on("clickEvent", (ev) => {
-            props.selectEvent({
-                event: ev.event,
-            });
-        });
-    }, [calendarRef.current, props.createEvent, props.selectEvent]);
+
+        const pointerUp = (ev: PointerEvent) => {
+            const target = ev.target as HTMLElement | null;
+            if (target === null) {
+                return;
+            }
+            if (target.parentElement === null || target.parentElement.parentElement === null) {
+                return;
+            }
+            const id = target.parentElement.parentElement.getAttribute("data-event-id");
+            if (id) {
+                const event = calendar.getEvent(id, id.split("@")[0]);
+                props.selectEvent({
+                    event,
+                    calendar,
+                });
+                ev.stopImmediatePropagation();
+                ev.stopPropagation();
+            }
+        };
+
+        root.current.addEventListener("pointerup", pointerUp, { capture: true });
+
+        return () => {
+            root.current?.removeEventListener("pointerup", pointerUp, { capture: true });
+        };
+    }, [root, calendarRef.current, props.createEvent, props.selectEvent]);
 
     return <div ref={root} class={props.class}></div>;
 }

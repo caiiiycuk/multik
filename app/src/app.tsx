@@ -3,6 +3,7 @@ import "./app.css";
 import { Calendar } from "./calendar";
 import { AppProps, Config, CreateEventRequest, SelectEventRequest } from "./props";
 import { CreateEvent } from "./create-event";
+import { SelectEvent } from "./select-event";
 
 export function App() {
     const [config, setConfig] = useState<Config | null>(null);
@@ -37,6 +38,7 @@ export function App() {
     }
 
     const appProps: AppProps = {
+        login: new URLSearchParams().get("login"),
         config,
         createEvent: setCreateRequest,
         selectEvent: setSelectRequest,
@@ -49,6 +51,8 @@ export function App() {
     return <>
         <Calendar {...appProps} class="h-full" />
         { createRequest !== null && <CreateEvent {...appProps} request={createRequest}
+            class="absolute left-0 top-0 h-full w-full z-40" />}
+        { selectRequest !== null && <SelectEvent {...appProps} request={selectRequest}
             class="absolute left-0 top-0 h-full w-full z-50" />}
     </>;
 }
