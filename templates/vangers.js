@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * @type {import("../app/src/props").MultiplayerGames}
+ * @type {import("../app/src/props").Templates}
  */
 const games = [
     {
@@ -17,6 +17,7 @@ const games = [
         },
         color: "#D93F0B",
         textColor: "#FFFFFF",
+        defaultServer: "vangers.net",
     },
     {
         id: "mechosoma",
@@ -31,6 +32,7 @@ const games = [
         },
         color: "#0E8A16",
         textColor: "#FFFFFF",
+        defaultServer: "vangers.net",
     },
     {
         id: "passemblos",
@@ -45,6 +47,7 @@ const games = [
         },
         color: "#1AA4CF",
         textColor: "#FFFFFF",
+        defaultServer: "vangers.net",
     }
 ];
 

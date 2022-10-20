@@ -48,6 +48,8 @@ export function Calendar(props: AppProps & {
 
         calendarRef.current = instance;
 
+        props.store.addAllTo(instance);
+
         return () => {
             try {
                 instance.destroy();
@@ -64,7 +66,7 @@ export function Calendar(props: AppProps & {
         }
 
         calendar.on("selectDateTime", (ev) => {
-            props.createEvent({
+            props.createGame({
                 start: ev.start,
                 end: ev.end,
                 calendar,
@@ -83,9 +85,8 @@ export function Calendar(props: AppProps & {
             }
 
             if (id !== null) {
-                const event = calendar.getEvent(id, id.split("@")[0]);
-                props.selectEvent({
-                    event,
+                props.selectGame({
+                    id,
                     calendar,
                 });
                 ev.stopImmediatePropagation();
@@ -98,7 +99,7 @@ export function Calendar(props: AppProps & {
         return () => {
             root.current?.removeEventListener("pointerup", pointerUp, { capture: true });
         };
-    }, [root, calendarRef.current, props.createEvent, props.selectEvent]);
+    }, [root, calendarRef.current, props.createGame, props.selectGame]);
 
     return <div ref={root} class={props.class}></div>;
 }

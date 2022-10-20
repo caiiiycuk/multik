@@ -1,14 +1,28 @@
+import { useEffect } from "preact/hooks";
+import { Game } from "./game-store";
 import { lang, t } from "./i18n";
-import { AppProps, SelectEventRequest, MultiplayerGame } from "./props";
-import { humanizeTime } from "./time";
+import { AppProps, SelectGameRequest, GameTemplate } from "./props";
+import { humanizeTime, newDate } from "./time";
 
 export function SelectEvent(props: AppProps & {
-    request: SelectEventRequest,
+    request: SelectGameRequest,
     class?: string,
 }) {
-    const config = props.config;
-    const { start, end, calendarId } = props.request.event;
-    const game = config.games.find((g) => g.id === calendarId) as MultiplayerGame;
+    const game = props.store.get(props.request.id) as Game;
+
+    useEffect(() => {
+        if (game === null) {
+            props.cancleRequest();
+        }
+    }, [game]);
+
+    if (game === null) {
+        return null;
+    }
+
+    const start = newDate(game.start);
+    const end = newDate(game.end);
+    const template = props.config.games.find((el) => el.id === game.templateId) as GameTemplate;
 
     function onClose() {
         props.cancleRequest();
@@ -16,7 +30,7 @@ export function SelectEvent(props: AppProps & {
 
     function onCreate() {
         props.cancleRequest();
-        props.createEvent({
+        props.createGame({
             start,
             end,
             calendar: props.request.calendar,
@@ -39,18 +53,21 @@ export function SelectEvent(props: AppProps & {
             <div class="text-xl my-4">{t("game")}</div>
             <div class="my-2 flex flex-row items-center">
                 <div class="mr-4 w-20">{t("game_type")}</div>
-                <div>{game.name[lang] ?? game.name["en"]}</div>
-                {game.color && <div class="ml-2 w-4 h-4" style={{ backgroundColor: game.color }}></div>}
+                <div>{template.name[lang] ?? template.name["en"]}</div>
+                {template.color && <div class="ml-2 w-4 h-4" style={{ backgroundColor: template.color }}></div>}
             </div>
 
-            {game.description && <div class="text-sm text-gray-600 ml-4 -mt-1 mb-2 flex flex-row">
+            {template.description && <div class="text-sm text-gray-600 ml-4 -mt-1 mb-2 flex flex-row">
                 <span class="mr-2">*</span>
-                <span>{game.description[lang] ?? game.description["en"]}</span>
+                <span>{template.description[lang] ?? template.description["en"]}</span>
             </div>}
 
-            <TextInput label={t("name")} value={""} />
-            <TextInput label={t("link")} value={""} />
-            <TextInput label={t("comment")} value={""} />
+            <TextInput label={t("server")} value={game.server ?? ""} />
+            <TextInput label={t("name")} value={game.name ?? ""} />
+            <TextInput label={t("link")} value={game.link ?? ""} />
+            <TextInput label={t("comment")} value={game.comment ?? ""} />
+            <TextInput label={t("owner")} value={game.owner ?? ""} />
+
 
             <div class="flex flex-row my-4">
                 <div class="flex-grow" />

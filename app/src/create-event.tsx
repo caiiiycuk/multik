@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
 import { lang, t } from "./i18n";
-import { AppProps, CreateEventRequest, MultiplayerGame } from "./props";
+import { AppProps, CreateGameRequest, GameTemplate } from "./props";
 import { nanoid } from "nanoid";
 import { humanizeTime, newDate } from "./time";
 
@@ -9,15 +9,21 @@ const durationStep = minDuration;
 const maxDuration = 2 * 60 * 60 * 1000;
 
 export function CreateEvent(props: AppProps & {
-    request: CreateEventRequest,
+    request: CreateGameRequest,
     class?: string,
 }) {
     const config = props.config;
     const { calendar } = props.request;
     const [gameId, setGameType] = useState<string>(config.games[0].id);
-    const game = config.games.find((g) => g.id === gameId) as MultiplayerGame;
+    const game = config.games.find((g) => g.id === gameId) as GameTemplate;
     const [start, setStart] = useState<number>(props.request.start.getTime());
     const [duration, setDuration] = useState<number>(game.durationMs);
+
+    const [server, setServer] = useState<string>(game.defaultServer ?? "");
+    const [name, setName] = useState<string>(game.name["en"] ?? "");
+    const [link, setLink] = useState<string>("");
+    const [comment, setComment] = useState<string>("");
+    const [owner, setOwner] = useState<string>(props.login ?? "guest");
 
     function onCancle() {
         calendar.clearGridSelections();
@@ -25,15 +31,23 @@ export function CreateEvent(props: AppProps & {
     }
 
     function onCreate() {
+        const id = game.id + "@" + nanoid();
+        props.store.add({
+            id,
+            templateId: game.id,
+            start: start,
+            end: start + duration,
+            name,
+            link,
+            comment,
+            server,
+            owner: owner ?? "guest",
+            attendees: [owner ?? "guest"],
+        });
+
+        props.store.addGameTo(id, calendar);
+
         calendar.clearGridSelections();
-        calendar.createEvents([{
-            id: game.id + "@" + nanoid(),
-            calendarId: game.id,
-            start: newDate(start),
-            end: newDate(start + duration),
-            backgroundColor: game.color,
-            color: game.textColor,
-        }]);
         props.cancleRequest();
     }
 
@@ -85,9 +99,11 @@ export function CreateEvent(props: AppProps & {
                 <span>{game.description[lang] ?? game.description["en"]}</span>
             </div>}
 
-            <TextInput label={t("name")} value={""} />
-            <TextInput label={t("link")} value={""} />
-            <TextInput label={t("comment")} value={""} />
+            <TextInput label={t("server")} value={server} onChange={setServer} />
+            <TextInput label={t("name")} value={name} onChange={setName} />
+            <TextInput label={t("link")} value={link} onChange={setLink} />
+            <TextInput label={t("comment")} value={comment} onChange={setComment} />
+            <TextInput label={t("owner")} value={owner} onChange={setOwner} />
 
             <div class="flex flex-row my-4">
                 <div class="flex-grow" />
@@ -101,10 +117,12 @@ export function CreateEvent(props: AppProps & {
 function TextInput(props: {
     label: string,
     value: string,
+    onChange: (value: string) => void,
 }) {
     return <div class="flex flex-row my-2 items-center">
         <div class="mr-4 w-20">{props.label}</div>
-        <input class="border border-blue-300 rounded px-1 py-1 w-full" value={props.value}></input>
+        <input class="border border-blue-300 rounded px-1 py-1 w-full" value={props.value}
+            onChange={(e) => props.onChange(e.currentTarget.value) }></input>
     </div>;
 }
 

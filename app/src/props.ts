@@ -1,37 +1,40 @@
-import Calendar, { EventObject } from "@toast-ui/calendar/*";
+import Calendar from "@toast-ui/calendar/*";
+import { GameStore } from "./game-store";
 
 export type LocalizedString = { [lang: string]: string };
 
-export interface MultiplayerGame {
+export interface GameTemplate {
     id: string,
     name: LocalizedString,
     durationMs: number,
     description?: LocalizedString,
     color?: string,
     textColor?: string,
+    defaultServer?: string,
 }
 
-export type MultiplayerGames = MultiplayerGame[];
+export type Templates = GameTemplate[];
 
 export interface Config {
-    games: MultiplayerGames;
+    games: Templates;
 };
 
-export interface CreateEventRequest {
+export interface CreateGameRequest {
     start: Date,
     end: Date,
     calendar: Calendar,
 }
 
-export interface SelectEventRequest {
-    event: EventObject,
+export interface SelectGameRequest {
+    id: string,
     calendar: Calendar,
 }
 
 export interface AppProps {
     login: string | null,
     config: Config,
-    createEvent: (request: CreateEventRequest) => void,
-    selectEvent: (request: SelectEventRequest) => void,
+    createGame: (request: CreateGameRequest) => void,
+    selectGame: (request: SelectGameRequest) => void,
     cancleRequest: () => void,
+    store: GameStore,
 };

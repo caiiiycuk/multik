@@ -19,6 +19,8 @@ const data: { [lang: string]: { [key: string]: string } } = {
         close: "Close",
         create_another_one: "Create another one",
         game_info: "Game Info",
+        server: "Server",
+        owner: "Owner",
     },
     ru: {
         create_event: "Запланировать игру",
@@ -34,5 +36,7 @@ const data: { [lang: string]: { [key: string]: string } } = {
         close: "Закрыть",
         create_another_one: "Создать ещё одну",
         game_info: "Информация о игре",
+        server: "Сервер",
+        owner: "Владелец",
     },
 };

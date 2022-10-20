@@ -1,15 +1,17 @@
 import { useEffect, useState } from "preact/hooks";
 import "./app.css";
 import { Calendar } from "./calendar";
-import { AppProps, Config, CreateEventRequest, SelectEventRequest } from "./props";
+import { AppProps, Config, CreateGameRequest, SelectGameRequest } from "./props";
 import { CreateEvent } from "./create-event";
 import { SelectEvent } from "./select-event";
+import { GameStore, initStore } from "./game-store";
 
 export function App() {
     const [config, setConfig] = useState<Config | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [createRequest, setCreateRequest] = useState<CreateEventRequest | null>(null);
-    const [selectRequest, setSelectRequest] = useState<SelectEventRequest | null>(null);
+    const [createRequest, setCreateRequest] = useState<CreateGameRequest | null>(null);
+    const [selectRequest, setSelectRequest] = useState<SelectGameRequest | null>(null);
+    const [store, setStore] = useState<GameStore | null>(null);
 
     useEffect((async () => {
         try {
@@ -29,30 +31,44 @@ export function App() {
         }
     }) as any, []);
 
+    useEffect((async () => {
+        if (config === null) {
+            return;
+        }
+
+        try {
+            setStore(await initStore(config));
+        } catch (e: any) {
+            console.error(e);
+            setError(e.message ?? "Unknown error");
+        }
+    }) as any, [config]);
+
     if (error !== null) {
         return <Broken error={error} />;
     }
 
-    if (config === null) {
+    if (config === null || store === null) {
         return <Spinner />;
     }
 
     const appProps: AppProps = {
-        login: new URLSearchParams().get("login"),
+        login: new URLSearchParams(location.search).get("login"),
         config,
-        createEvent: setCreateRequest,
-        selectEvent: setSelectRequest,
+        createGame: setCreateRequest,
+        selectGame: setSelectRequest,
         cancleRequest: () => {
             setCreateRequest(null);
             setSelectRequest(null);
         },
+        store,
     };
 
     return <>
         <Calendar {...appProps} class="h-full" />
-        { createRequest !== null && <CreateEvent {...appProps} request={createRequest}
+        {createRequest !== null && <CreateEvent {...appProps} request={createRequest}
             class="absolute left-0 top-0 h-full w-full z-40" />}
-        { selectRequest !== null && <SelectEvent {...appProps} request={selectRequest}
+        {selectRequest !== null && <SelectEvent {...appProps} request={selectRequest}
             class="absolute left-0 top-0 h-full w-full z-50" />}
     </>;
 }
