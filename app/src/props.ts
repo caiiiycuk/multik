@@ -16,6 +16,7 @@ export interface GameTemplate {
 export type Templates = GameTemplate[];
 
 export interface Config {
+    game: LocalizedString,
     endpoint: string,
     games: Templates;
 };

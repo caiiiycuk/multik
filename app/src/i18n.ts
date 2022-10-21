@@ -24,6 +24,9 @@ const data: { [lang: string]: { [key: string]: string } } = {
         attendees: "Attendees",
         join: "Join",
         leave: "Leave",
+        landing_title: "Multiplayer calendar",
+        enter: "Enter",
+        your_name: "Your name",
     },
     ru: {
         create_event: "Запланировать игру",
@@ -44,5 +47,8 @@ const data: { [lang: string]: { [key: string]: string } } = {
         attendees: "Участники",
         join: "Присоединиться",
         leave: "Покинуть",
+        landing_title: "Календарь сетевых игр",
+        enter: "Войти",
+        your_name: "Ваше имя",
     },
 };

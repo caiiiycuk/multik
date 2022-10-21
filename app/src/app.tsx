@@ -5,6 +5,7 @@ import { AppProps, Config, CreateGameRequest, SelectGameRequest } from "./props"
 import { CreateEvent } from "./create-event";
 import { SelectEvent } from "./select-event";
 import { GameStore, initStore } from "./game-store";
+import { lang, t } from "./i18n";
 
 export function App() {
     const [config, setConfig] = useState<Config | null>(null);
@@ -13,6 +14,8 @@ export function App() {
     const [selectRequest, setSelectRequest] = useState<SelectGameRequest | null>(null);
     const [store, setStore] = useState<GameStore | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    const [login, setLogin] = useState<string | null>(new URLSearchParams(location.search).get("login"));
+    const [landing, setLanding] = useState<boolean>(login === null);
 
     useEffect((async () => {
         try {
@@ -53,8 +56,15 @@ export function App() {
         return <Spinner />;
     }
 
+    if (landing || login === null) {
+        return <Landing config={config} onEnter={(name) => {
+            setLanding(false);
+            setLogin(name);
+        }} />;
+    }
+
     const appProps: AppProps = {
-        login: new URLSearchParams(location.search).get("login") ?? "guest",
+        login,
         config,
         createGame: setCreateRequest,
         selectGame: setSelectRequest,
@@ -91,5 +101,33 @@ function Spinner(props: { class?: string }) {
 function Broken(props: { error: string }) {
     return <div class="h-full w-full flex justify-center items-center">
         <div class="text-red-800">{props.error}</div>
+    </div>;
+}
+
+function Landing(props: { config: Config, onEnter: (name: string) => void }) {
+    const [name, setName] = useState<string>(localStorage.getItem("multik.name") ?? "guest");
+
+    function updateName(newName: string) {
+        setName(newName);
+        localStorage.setItem("multik.name", newName);
+    }
+
+    function onEnter() {
+        props.onEnter(
+            name.length === 0 || name === undefined || name === null ?
+                "guest" :
+                name,
+        );
+    }
+
+    return <div class="h-full bg-white flex flex-col items-center justify-center">
+        <div class="text-4xl font-bold">{props.config.game[lang] ?? props.config.game["en"] ?? ""}</div>
+        <div class="mt-2">{t("landing_title")}</div>
+        <div class="flex flex-row my-8 items-center">
+            <div class="mr-4">{t("your_name")}:</div>
+            <input class="border border-blue-400 px-2 py-1 rounded"
+                type="text" value={name} onChange={(e) => updateName(e.currentTarget.value ?? "")}></input>
+        </div>
+        <div class="bg-blue-400 rounded px-4 py-2 cursor-pointer" onClick={onEnter}>{t("enter")}</div>
     </div>;
 }

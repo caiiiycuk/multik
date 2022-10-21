@@ -55,6 +55,10 @@ const games = [
  * @type {import("../app/src/props").Config}
  */
 const config = {
+    game: {
+        en: "Vangers",
+        ru: "Вангеры",
+    },
     endpoint: "https://d5doclq1iiav7jvf299a.apigw.yandexcloud.net",
     games,
 };
