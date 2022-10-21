@@ -23,7 +23,7 @@ export function CreateEvent(props: AppProps & {
     const [name, setName] = useState<string>(game.name["en"] ?? "");
     const [link, setLink] = useState<string>("");
     const [comment, setComment] = useState<string>("");
-    const [owner, setOwner] = useState<string>(props.login ?? "guest");
+    const [owner, setOwner] = useState<string>(props.login);
 
     function onCancle() {
         calendar.clearGridSelections();
@@ -31,6 +31,7 @@ export function CreateEvent(props: AppProps & {
     }
 
     function onCreate() {
+        props.setLoading(true);
         const id = game.id + "@" + nanoid();
         props.store.add({
             id,
@@ -43,7 +44,11 @@ export function CreateEvent(props: AppProps & {
             server,
             owner: owner ?? "guest",
             attendees: [owner ?? "guest"],
-        });
+        }).catch((e) => {
+            props.setLoading(false);
+            console.error(e);
+            props.setError("Can't add event to server: " + (e.message ?? "unknown error"));
+        }).then(() => props.setLoading(false));
 
         props.store.addGameTo(id, calendar);
 
@@ -103,7 +108,7 @@ export function CreateEvent(props: AppProps & {
             <TextInput label={t("name")} value={name} onChange={setName} />
             <TextInput label={t("link")} value={link} onChange={setLink} />
             <TextInput label={t("comment")} value={comment} onChange={setComment} />
-            <TextInput label={t("owner")} value={owner} onChange={setOwner} />
+            <TextInput disabled={true} label={t("owner")} value={owner} onChange={setOwner} />
 
             <div class="flex flex-row my-4">
                 <div class="flex-grow" />
@@ -117,12 +122,13 @@ export function CreateEvent(props: AppProps & {
 function TextInput(props: {
     label: string,
     value: string,
+    disabled?: boolean,
     onChange: (value: string) => void,
 }) {
     return <div class="flex flex-row my-2 items-center">
         <div class="mr-4 w-20">{props.label}</div>
-        <input class="border border-blue-300 rounded px-1 py-1 w-full" value={props.value}
-            onChange={(e) => props.onChange(e.currentTarget.value) }></input>
+        <input disabled={props.disabled} class="border border-blue-300 rounded px-1 py-1 w-full" value={props.value}
+            onChange={(e) => props.onChange(e.currentTarget.value)}></input>
     </div>;
 }
 

@@ -16,10 +16,12 @@ export interface Game {
 }
 
 export class GameStore {
-    templates: {[id: string]: GameTemplate} = {};
+    config: Config;
+    templates: { [id: string]: GameTemplate } = {};
     store: { [id: string]: Game };
 
-    constructor(config: Config, store: { [id: string]: Game}) {
+    constructor(config: Config, store: { [id: string]: Game }) {
+        this.config = config;
         this.store = store;
 
         for (const next of config.games) {
@@ -27,8 +29,28 @@ export class GameStore {
         }
     }
 
-    add(game: Game): void {
+    async add(game: Game) {
         this.store[game.id] = game;
+        const response = await fetch(this.config.endpoint + "/put", {
+            method: "PUT",
+            body: JSON.stringify(game),
+        });
+        const payload = await response.json();
+        if (payload.success === false) {
+            throw new Error(payload.error);
+        }
+    }
+
+    async remove(game: Game) {
+        delete this.store[game.id];
+
+        const response = await fetch(this.config.endpoint + "/del?id=" + game.id, {
+            method: "PUT",
+        });
+        const payload = await response.json();
+        if (payload.success === false) {
+            throw new Error(payload.error);
+        }
     }
 
     get(id: string): Game | null {
@@ -61,5 +83,19 @@ export class GameStore {
 }
 
 export async function initStore(config: Config) {
-    return new GameStore(config, {});
+    const start = new Date();
+    start.setUTCHours(0, 0, 0, 0);
+
+    const response = await fetch(config.endpoint + "/get?start=" + start.getTime());
+    const json = await response.json();
+    if (json.success === false) {
+        throw new Error(json.error);
+    }
+
+    const store: { [id: string]: Game } = {};
+    for (const next of json.documents) {
+        const doc = JSON.parse(next);
+        store[doc.id] = doc;
+    }
+    return new GameStore(config, store);
 }

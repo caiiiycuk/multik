@@ -51,6 +51,12 @@ const games = [
     }
 ];
 
-window.multik = {
+/**
+ * @type {import("../app/src/props").Config}
+ */
+const config = {
+    endpoint: "https://d5doclq1iiav7jvf299a.apigw.yandexcloud.net",
     games,
 };
+
+window.multik = config;

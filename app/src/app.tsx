@@ -12,6 +12,7 @@ export function App() {
     const [createRequest, setCreateRequest] = useState<CreateGameRequest | null>(null);
     const [selectRequest, setSelectRequest] = useState<SelectGameRequest | null>(null);
     const [store, setStore] = useState<GameStore | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect((async () => {
         try {
@@ -53,7 +54,7 @@ export function App() {
     }
 
     const appProps: AppProps = {
-        login: new URLSearchParams(location.search).get("login"),
+        login: new URLSearchParams(location.search).get("login") ?? "guest",
         config,
         createGame: setCreateRequest,
         selectGame: setSelectRequest,
@@ -62,19 +63,23 @@ export function App() {
             setSelectRequest(null);
         },
         store,
+        setError,
+        setLoading,
     };
 
     return <>
         <Calendar {...appProps} class="h-full" />
         {createRequest !== null && <CreateEvent {...appProps} request={createRequest}
-            class="absolute left-0 top-0 h-full w-full z-40" />}
+            class="absolute left-0 top-0 h-full w-full z-30" />}
         {selectRequest !== null && <SelectEvent {...appProps} request={selectRequest}
-            class="absolute left-0 top-0 h-full w-full z-50" />}
+            class="absolute left-0 top-0 h-full w-full z-40" />}
+        {loading && <Spinner
+            class="absolute left-0 top-0 h-full w-full z-50 bg-white opacity-50" />}
     </>;
 }
 
-function Spinner(props: {}) {
-    return <div class="h-full w-full flex justify-center items-center">
+function Spinner(props: { class?: string }) {
+    return <div class={"h-full w-full flex justify-center items-center " + props.class}>
         <svg xmlns="http://www.w3.org/2000/svg"
             class="w-16 h-16 animate-spin"
             fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">

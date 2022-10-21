@@ -21,6 +21,9 @@ const data: { [lang: string]: { [key: string]: string } } = {
         game_info: "Game Info",
         server: "Server",
         owner: "Owner",
+        attendees: "Attendees",
+        join: "Join",
+        leave: "Leave",
     },
     ru: {
         create_event: "Запланировать игру",
@@ -38,5 +41,8 @@ const data: { [lang: string]: { [key: string]: string } } = {
         game_info: "Информация о игре",
         server: "Сервер",
         owner: "Владелец",
+        attendees: "Участники",
+        join: "Присоединиться",
+        leave: "Покинуть",
     },
 };

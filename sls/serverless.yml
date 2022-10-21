@@ -1,0 +1,78 @@
+service: multik
+frameworkVersion: "3"
+
+provider:
+  name: yandex-cloud
+  runtime: nodejs16
+  httpApi:
+    payload: '1.0'
+
+
+plugins:
+  - "@yandex-cloud/serverless-plugin"
+
+package:
+  patterns:
+    - '!**'
+    - package.json
+    - package-lock.json
+    - dist/*.js
+
+functions:
+  setup:
+    handler: dist/setup.handler
+    memorySize: 128
+    timeout: 5
+    account: default 
+    events:
+      - http:
+          method: get
+          path: /setup
+  put:
+    handler: dist/put.handler
+    memorySize: 128
+    timeout: 5
+    account: default 
+    events:
+      - http:
+          method: put
+          path: /put
+  get:
+    handler: dist/get.handler
+    memorySize: 128
+    timeout: 5
+    account: default 
+    events:
+      - http:
+          method: get
+          path: /get
+  del:
+    handler: dist/del.handler
+    memorySize: 128
+    timeout: 5
+    account: default 
+    events:
+      - http:
+          method: put
+          path: /del
+  preflight:
+    handler: dist/cors.handler
+    memorySize: 128
+    timeout: 5
+    account: default 
+    events:
+      - http:
+          method: options
+          path: /put
+      - http:
+          method: options
+          path: /get
+      - http:
+          method: options
+          path: /del
+
+resources:
+  default:
+    type: yc::ServiceAccount
+    roles:
+      - editor

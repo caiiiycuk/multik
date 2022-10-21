@@ -41,7 +41,15 @@ export function Calendar(props: AppProps & {
             },
             template: {
                 time: (e) => {
-                    return <div>{names[e.calendarId]}</div>;
+                    return <div>
+                        <div class="flex flex-row items-center justify-start">
+                            <div class="flex items-center justify-center rounded-full
+                                text-white bg-blue-800 w-4 h-4 mr-2 flex-shrink-0">
+                                {e.attendees ? (e.attendees.length > 10 ? "+" : e.attendees.length ) : 0}
+                            </div>
+                            <div class="flex-shrink overflow-ellipsis">{names[e.calendarId]}</div>
+                        </div>
+                    </div>;
                 },
             },
         });

@@ -37,9 +37,61 @@ export function SelectEvent(props: AppProps & {
         });
     }
 
+    function leave() {
+        if (game.attendees) {
+            props.setLoading(true);
+            game.attendees = game.attendees.filter((el) => el !== props.login);
+            if (game.attendees.length === 0) {
+                props.store
+                    .remove(game)
+                    .catch((e) => {
+                        console.error(e);
+                        props.setError(e.message);
+                    })
+                    .finally(() => props.setLoading(false));
+                props.request.calendar.deleteEvent(game.id, game.templateId);
+            } else {
+                props.store
+                    .add(game)
+                    .catch((e) => {
+                        console.error(e);
+                        props.setError(e.message);
+                    })
+                    .finally(() => props.setLoading(false));
+                props.request.calendar.updateEvent(game.id, game.templateId, {
+                    attendees: game.attendees,
+                });
+            }
+        }
+
+        props.cancleRequest();
+    }
+
+    function join() {
+        if (game.attendees && game.attendees.findIndex((el) => el === props.login) === -1) {
+            game.attendees.push(props.login);
+            props.setLoading(true);
+            props.store
+                .add(game)
+                .catch((e) => {
+                    console.error(e);
+                    props.setError(e.message);
+                })
+                .finally(() => props.setLoading(false));
+            props.request.calendar.updateEvent(game.id, game.templateId, {
+                attendees: game.attendees,
+            });
+        }
+
+        props.cancleRequest();
+    }
+
+    const subscribed = (game.attendees || []).findIndex((el) => el === props.login) >= 0;
+
     return <div class={props.class + " bg-white opacity-95"}>
         <div class="flex flex-col mx-10 my-8">
             <div class="text-2xl mb-4">{t("game_info")}</div>
+            <div class="mb-2">{t("attendees")}: {(game.attendees || []).join(", ")}</div>
 
             <div class="flex flex-row">
                 <div class="w-16">{t("from")}</div>
@@ -68,8 +120,11 @@ export function SelectEvent(props: AppProps & {
             <TextInput label={t("comment")} value={game.comment ?? ""} />
             <TextInput label={t("owner")} value={game.owner ?? ""} />
 
-
             <div class="flex flex-row my-4">
+                {subscribed && <div class="bg-blue-400 px-4 py-2 mr-8 rounded cursor-pointer"
+                    onClick={leave}>{t("leave")}</div>}
+                {!subscribed && <div class="bg-blue-400 px-4 py-2 mr-8 rounded cursor-pointer"
+                    onClick={join}>{t("join")}</div>}
                 <div class="flex-grow" />
                 <div class="bg-gray-400 px-4 py-2 mr-8 rounded cursor-pointer"
                     onClick={onCreate}>{t("create_another_one")}</div>

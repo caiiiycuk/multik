@@ -16,6 +16,7 @@ export interface GameTemplate {
 export type Templates = GameTemplate[];
 
 export interface Config {
+    endpoint: string,
     games: Templates;
 };
 
@@ -31,10 +32,12 @@ export interface SelectGameRequest {
 }
 
 export interface AppProps {
-    login: string | null,
+    login: string,
     config: Config,
     createGame: (request: CreateGameRequest) => void,
     selectGame: (request: SelectGameRequest) => void,
     cancleRequest: () => void,
     store: GameStore,
+    setError: (error: string) => void,
+    setLoading: (loading: boolean) => void,
 };
